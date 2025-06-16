@@ -27,6 +27,7 @@ class ImportAttendanceRecordController extends AdminController
     {
 
         $grid = new Grid(new ImportAttendanceRecord());
+        $grid->model()->orderBy('created_at', 'desc'); 
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created at'));
