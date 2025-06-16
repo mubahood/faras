@@ -26,8 +26,121 @@ use Illuminate\Support\Facades\Route;
 use Sabberworm\CSS\Property\Import;
 
 
+Route::get('import-employees', function (Request $r) {
+
+    $employees = [
+        ["name" => "KHALFAN HANAN MUTASIM", "phone" => "0771665405"],
+        ["name" => "BRENDA NAKACWA FAITH", "phone" => "0707902006"],
+        ["name" => "KATENDE KARIM", "phone" => "0759019192"],
+        ["name" => "MUTAWE ABU BAKAR", "phone" => "0757769707"],
+        ["name" => "MAKHUWA ABDUL WAHAB", "phone" => "0708454691"],
+        ["name" => "NAKAMYA CLAIRE", "phone" => "0756224819"],
+        ["name" => "NGONI ABU BAKAR SALIM", "phone" => "0752629977"],
+        ["name" => "MUKABALISA HOPE", "phone" => "0782690090"],
+        ["name" => "NAKAWEESA RAHMAH", "phone" => "0703197127"],
+        ["name" => "NAKINTU JACKLINE", "phone" => "0753502945"],
+        ["name" => "AINEOMUGISHA WALID", "phone" => "0703076464"],
+        ["name" => "GWITABINGI LYDIA", "phone" => "0751813958"],
+        ["name" => "MARYAMO SULEIMAN M", "phone" => "0740158977"],
+        ["name" => "MULINDWA CALEB", "phone" => "0758948739"],
+        ["name" => "MAHA MOHAMMED SALIH", "phone" => "0782112268"],
+        ["name" => "NAFULA DAPHINE", "phone" => "0760346145"],
+        ["name" => "MUSOKE MUHAMMED", "phone" => "0751644283"],
+        ["name" => "NAKAYEMBA FAITH", "phone" => "0757821175"],
+        ["name" => "NDAGIRE JACKIE", "phone" => "0709855563"],
+        ["name" => "SSANSA MARVIN", "phone" => "0703395774"],
+        ["name" => "KWIRINGIRA AMOS DAVID", "phone" => "0752561298"],
+        ["name" => "MUGWIRE JACKSON", "phone" => "0705180599"],
+        ["name" => "NYOMBI BRIAN", "phone" => "0704830199"],
+        ["name" => "SENGO ALI", "phone" => "0759638324"],
+        ["name" => "KIMBUGWE ELIJAH AVIAS", "phone" => "0753597601"],
+        ["name" => "ALOWOOZA MARIAM N", "phone" => "0778970225"],
+        ["name" => "KASAIJA ARAALI", "phone" => "0704572789"],
+        ["name" => "NAGASHA PATRICIA", "phone" => "0757400481"],
+        ["name" => "SSEKITTO ABDALLAH", "phone" => "0741061562"],
+        ["name" => "FARDOWSA ABDI HUSSEIN", "phone" => "0750131429"],
+        ["name" => "ZAKAIRE AHAMED M", "phone" => "0702038557"],
+        ["name" => "ASIIMWE HAAWA", "phone" => "0778988252"],
+        ["name" => "MWESIGWA BASIR", "phone" => "0703809923"],
+        ["name" => "YASMIN SAID MOHAMUD", "phone" => "0702060308"],
+        ["name" => "AISHA MOHAMMED", "phone" => "0705149918"],
+        ["name" => "KASIRIVU HUSSEIN ALI", "phone" => "0702315060"],
+        ["name" => "ABDINASIR YUSSUF ABDILLE", "phone" => "0780689838"],
+        ["name" => "SUDI ABDI AHMED", "phone" => "0750955812"],
+        ["name" => "ABDIRAHIM NOR WARSAME", "phone" => "0767818241"],
+        ["name" => "NAMWANJE SHAMIM", "phone" => "—"],
+    ];
+
+
+
+    $id = 0;
+    foreach ($employees as $key => $employee) {
+        $id++;
+        $user = User::find($id);
+        if ($user == null) {
+            $user = new User();
+            $user->id = $id;
+        }
+        $user->name = $employee['name'];
+        $user->username = $employee['name'];
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $user->work_days = $days;
+        $user->password = bcrypt('password'); // Default password
+        $nameParts = explode(' ', $employee['name'], 2);
+        $user->first_name = $nameParts[0];
+        $user->last_name = isset($nameParts[1]) ? $nameParts[1] : '';
+        $user->reg_date = now();
+        $user->last_seen = now();
+        $user->email = null;
+        $user->approved = 1;
+        $user->profile_photo = null;
+        $user->user_type = 'employee';
+        $user->sex = null;
+        $user->reg_number = null;
+        $user->country = null;
+        $user->occupation = null;
+        $user->profile_photo_large = null;
+        $user->phone_number = $employee['phone'];
+        $user->location_lat = null;
+        $user->location_long = null;
+        $user->facebook = null;
+        $user->twitter = null;
+        $user->whatsapp = null;
+        $user->linkedin = null;
+        $user->website = null;
+        $user->other_link = null;
+        $user->cv = null;
+        $user->language = null;
+        $user->about = null;
+        $user->address = null;
+        $user->created_at = now();
+        $user->updated_at = now();
+        $user->remember_token = null;
+        $user->avatar = null;
+        $user->campus_id = '1';
+        $user->complete_profile = 0;
+        $user->title = null;
+        $user->dob = null;
+        $user->intro = null;
+        $user->is_mail_verified = 0;
+        $user->mail_verification_token = null;
+        $user->mail_verification_time = null;
+        $user->is_mail_verification_code_sent = 0;
+        $user->department_id = null;
+        $user->company_id = 1;
+        $user->change_password = 0;
+        $user->has_changed_password = 0;
+        $user->notify_account_created_by_email = 0;
+        $user->position = null;
+        $user->status = 'Active';
+        $user->start_working_date = now();
+        $user->hours = 0;
+        $user->save();
+        echo "User {$user->id} - {$user->name} imported successfully.<br>";
+    }
+});
 Route::get('do-import-attendance-records', function (Request $r) {
-   /*  $allUsers = User::all();
+    /*  $allUsers = User::all();
     if ($allUsers->count() == 0) {
         dd("No users found in the system.");
     }
@@ -214,7 +327,7 @@ Route::get('do-import-attendance-records', function (Request $r) {
 
 
 
-            $attendanceRecord->check_in_time = null; 
+            $attendanceRecord->check_in_time = null;
             $attendanceRecord->check_out_time = null;
             $attendanceRecord->has_error = 'No'; // Assuming no error for valid records
             $attendanceRecord->error_message = ''; // Assuming no error for valid records
@@ -302,7 +415,7 @@ Route::get('do-import-attendance-records', function (Request $r) {
     } else {
         echo "<p>No new attendance records imported.</p>";
     }
-}); 
+});
 
 
 Route::get('download-user-form-data', function (Request $request) {

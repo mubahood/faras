@@ -48,8 +48,7 @@ class UserController extends AdminController
             ->width(80)
             ->lightbox(['width' => 60, 'height' => 60])
             ->hide();
-
-        $grid->column('email', 'email address')->sortable();
+ 
         $grid->model()->orderBy('id', 'desc');
         $grid->column('name', trans('admin.name'))->sortable();
         $grid->column('sex', 'Gender')->hide();
@@ -145,10 +144,7 @@ class UserController extends AdminController
         $connection = config('admin.database.connection');
 
         $form->display('id', 'ID');
-        $form->text('email', 'Email Address')
-            ->creationRules(['required', "unique:{$connection}.{$userTable}"])
-            ->updateRules(['required', "unique:{$connection}.{$userTable},email,{{id}}"]);
-
+    
         //phone_number
 
         $form->text('name', trans('admin.name'))->rules('required');
@@ -203,14 +199,7 @@ class UserController extends AdminController
 
 
         //notify_account_created_by_email notify user by email when account is created
-
-        if ($form->isCreating()) {
-            $form->radio('notify_account_created_by_email', 'Notify User by Email on Account Creation')
-                ->options(['Yes' => 'Yes', 'No' => 'No'])
-                ->default('Yes')
-                ->rules('required');
-        }
-
+ 
         $form->ignore(['password_confirmation']);
 
 
