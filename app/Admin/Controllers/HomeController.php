@@ -23,9 +23,10 @@ class HomeController extends Controller
         $user = Admin::user();
         $config = SystemConfiguration::first(); // <-- GET SYSTEM CONFIG
         $companyName = $config->company_name ?? 'Your Company';
+        $TIME_NOW = Carbon::now()->format('H:i:s'); // <-- CURRENT TIME
 
         $content
-            ->title('Dashboard') // Simplified title
+            ->title('TIME: ' . $TIME_NOW)
             ->description("Welcome to the {$companyName} Attendance Portal.");
 
         // --- Date variables ---
