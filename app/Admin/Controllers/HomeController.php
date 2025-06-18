@@ -18,7 +18,7 @@ class HomeController extends Controller
 {
     public function index(Content $content)
     {
- 
+
 
         $user = Admin::user();
         $config = SystemConfiguration::first(); // <-- GET SYSTEM CONFIG
@@ -47,8 +47,10 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) use ($startOfWeek, $endOfWeek) {
                 $count = AttendanceRecord::whereBetween('attendance_date', [$startOfWeek, $endOfWeek])->where('status', 'Present')->count();
                 $column->append(view('admin.widgets.kpi_card', [
-                    'title'  => 'Present This Week', 'number' => $count,
-                    'icon'   => 'fa-check-square-o', 'color_class' => 'bg-primary-green',
+                    'title'  => 'Present This Week',
+                    'number' => $count,
+                    'icon'   => 'fa-check-square-o',
+                    'color_class' => 'bg-primary-green',
                 ]));
             });
 
@@ -56,8 +58,10 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) use ($startOfWeek, $endOfWeek) {
                 $count = AttendanceRecord::whereBetween('attendance_date', [$startOfWeek, $endOfWeek])->where('status', 'Absent')->count();
                 $column->append(view('admin.widgets.kpi_card', [
-                    'title'  => 'Absences This Week', 'number' => $count,
-                    'icon'   => 'fa-user-times', 'color_class' => 'bg-red-accent',
+                    'title'  => 'Absences This Week',
+                    'number' => $count,
+                    'icon'   => 'fa-user-times',
+                    'color_class' => 'bg-red-accent',
                 ]));
             });
 
@@ -65,8 +69,10 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) use ($startOfWeek, $endOfWeek) {
                 $count = AttendanceRecord::whereBetween('attendance_date', [$startOfWeek, $endOfWeek])->where('is_late', 'Yes')->count();
                 $column->append(view('admin.widgets.kpi_card', [
-                    'title'  => 'Late Arrivals This Week', 'number' => $count,
-                    'icon'   => 'fa-clock-o', 'color_class' => 'bg-yellow-accent',
+                    'title'  => 'Late Arrivals This Week',
+                    'number' => $count,
+                    'icon'   => 'fa-clock-o',
+                    'color_class' => 'bg-yellow-accent',
                 ]));
             });
 
@@ -74,8 +80,10 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) use ($startOfWeek, $endOfWeek) {
                 $count = Leave::where('start_date', '<=', $endOfWeek)->where('end_date', '>=', $startOfWeek)->count();
                 $column->append(view('admin.widgets.kpi_card', [
-                    'title'  => 'On Leave This Week', 'number' => $count,
-                    'icon'   => 'fa-suitcase', 'color_class' => 'bg-aqua-accent',
+                    'title'  => 'On Leave This Week',
+                    'number' => $count,
+                    'icon'   => 'fa-suitcase',
+                    'color_class' => 'bg-aqua-accent',
                 ]));
             });
         });
@@ -97,16 +105,43 @@ class HomeController extends Controller
                 $column->append(view('admin.charts.attendance_pie_chart', $pieChartData));
             });
 
-            // Bar Chart
+            // In HomeController.php
+
+            // Bar Chart: Weekly Attendance Summary
             $row->column(6, function (Column $column) use ($thirtyDaysAgo) {
-                // ... same logic as before ...
+                // 1. UPDATE THE QUERY to select the new "on_time_count"
                 $issuesData = AttendanceRecord::where('attendance_date', '>=', $thirtyDaysAgo)
-                    ->select('day', DB::raw("SUM(CASE WHEN is_late = 'Yes' THEN 1 ELSE 0 END) as late_count"), DB::raw("SUM(CASE WHEN status = 'Absent' THEN 1 ELSE 0 END) as absent_count"))
-                    ->groupBy('day')->orderByRaw("FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')")->get();
+                    ->select(
+                        'day',
+                        DB::raw("SUM(CASE WHEN status = 'Present' AND is_late = 'No' THEN 1 ELSE 0 END) as on_time_count"),
+                        DB::raw("SUM(CASE WHEN is_late = 'Yes' THEN 1 ELSE 0 END) as late_count"),
+                        DB::raw("SUM(CASE WHEN status = 'Absent' THEN 1 ELSE 0 END) as absent_count")
+                    )
+                    ->groupBy('day')
+                    ->orderByRaw("FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')")
+                    ->get();
+
                 $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                $lateCounts = array_fill_keys($days, 0); $absentCounts = array_fill_keys($days, 0);
-                foreach ($issuesData as $data) { $lateCounts[$data->day] = (int)$data->late_count; $absentCounts[$data->day] = (int)$data->absent_count; }
-                $barChartData = ['labels' => $days, 'late_data' => array_values($lateCounts), 'absent_data' => array_values($absentCounts)];
+
+                // 2. INITIALIZE the new array for on-time counts
+                $onTimeCounts = array_fill_keys($days, 0);
+                $lateCounts = array_fill_keys($days, 0);
+                $absentCounts = array_fill_keys($days, 0);
+
+                // 3. POPULATE the new array
+                foreach ($issuesData as $data) {
+                    $onTimeCounts[$data->day] = (int)$data->on_time_count;
+                    $lateCounts[$data->day] = (int)$data->late_count;
+                    $absentCounts[$data->day] = (int)$data->absent_count;
+                }
+
+                // 4. PASS the new data to the view
+                $barChartData = [
+                    'labels'        => $days,
+                    'on_time_data'  => array_values($onTimeCounts),
+                    'late_data'     => array_values($lateCounts),
+                    'absent_data'   => array_values($absentCounts),
+                ];
                 $column->append(view('admin.charts.weekly_issues_bar_chart', $barChartData));
             });
         });

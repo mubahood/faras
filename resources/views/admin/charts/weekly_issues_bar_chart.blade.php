@@ -1,5 +1,6 @@
 <div class="modern-box">
-    <div class="box-header">Weekly Attendance Issues (Last 30 Days)</div>
+    {{-- Changed the title to be more inclusive --}}
+    <div class="box-header">Weekly Attendance Summary (Last 30 Days)</div>
     <div class="box-content">
         <canvas id="weeklyIssuesBarChart" style="height: 290px;"></canvas>
     </div>
@@ -12,7 +13,15 @@ document.addEventListener('DOMContentLoaded', function () {
         type: 'bar',
         data: {
             labels: @json($labels),
-            datasets: [{
+            datasets: [
+            // --- ADD THIS NEW DATASET for "On Time" ---
+            {
+                label: 'On Time',
+                backgroundColor: '#00BF63', // Your primary green color
+                data: @json($on_time_data)
+            },
+            // --- Existing datasets ---
+            {
                 label: 'Late Arrivals',
                 backgroundColor: '#f39c12',
                 data: @json($late_data)
