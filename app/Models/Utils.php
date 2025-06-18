@@ -86,19 +86,33 @@ class Utils extends Model
         $output = [];
         $today = Carbon::now();
         $tomorrow = $today->copy()->addDay();
-        for ($date = $month_start->copy(); $date->lte($month_end); $date->addDay()) {
+        $done_dates = [];
 
-            //dont go beyond today
+
+        for ($date = $month_start->copy(); $date->lte($month_end); $date->addDay()) {
+            if (in_array($date->toDateString(), $done_dates)) {
+                continue; // Skip if the date has already been processed
+            }
+            $done_dates[] = $date->toDateString(); // Mark this date as processed
+            //if today, break the loop
+            if ($date->isToday()) {
+                break; // Stop if the date is today
+            }
+        }
+
+
+        foreach ($done_dates as $done_date) {
+            $date = Carbon::parse($done_date);
             if ($date->gt($tomorrow)) {
                 break; // Stop if the date is beyond tomorrow
-            } 
+            }
 
             //check if date is before start date
             if ($date->lt($start_date)) {
                 continue; // Skip dates before the start date
             }
 
-            
+
             //loop through each user
             foreach ($users as $user) {
                 $isAvailableOnDay = $user->isAvailableOnDay($date);
@@ -133,6 +147,12 @@ class Utils extends Model
             }
         }
 
+
+        //delete records beyond today
+        $rec = AttendanceRecord::where('attendance_date', '>', $today->toDateString())
+            ->delete();
+
+        // die("Attendance records generated successfully for the month. Total records: " . count($output));
         return $output;
     }
     public static function get_test_mails()

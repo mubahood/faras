@@ -48,17 +48,18 @@ class UserController extends AdminController
             ->width(80)
             ->lightbox(['width' => 60, 'height' => 60])
             ->hide();
- 
+
         $grid->model()->orderBy('id', 'desc');
         $grid->column('name', trans('admin.name'))->sortable();
         $grid->column('sex', 'Gender')->hide();
 
 
+
         //phone_number
         $grid->column('phone_number', 'Phone Number')
             ->sortable();
- 
-        $grid->column('status', 'Status') 
+
+        $grid->column('status', 'Status')
             ->dot([
                 'Active' => 'success',
                 'Inactive' => 'danger',
@@ -77,9 +78,13 @@ class UserController extends AdminController
             }
         });
 
+        //title
+        $grid->column('title', 'Late Starts')
+            ->sortable();
+
         //total hours worked
-        $grid->column('hours', 'Total Hours Worked') 
-            ->sortable(); 
+        $grid->column('hours', 'Total Hours Worked')
+            ->sortable();
 
         return $grid;
         $grid->tools(function (Grid\Tools $tools) {
@@ -144,7 +149,7 @@ class UserController extends AdminController
         $connection = config('admin.database.connection');
 
         $form->display('id', 'ID');
-    
+
         //phone_number
 
         $form->text('name', trans('admin.name'))->rules('required');
@@ -192,6 +197,12 @@ class UserController extends AdminController
             ])
             ->rules('required');
 
+        //title as late time stats
+        $form->time('title', 'Late Time Stats')
+            ->default('08:00:00')
+            ->rules('required')
+            ->help('Set the time after which the user is considered late. For example, if you set it to 09:00:00, the user will be considered late if they clock in after 9 AM.');
+
         //start_working_date
         $form->date('start_working_date', 'Start Working Date')
             ->default(date('Y-m-d'))
@@ -199,7 +210,7 @@ class UserController extends AdminController
 
 
         //notify_account_created_by_email notify user by email when account is created
- 
+
         $form->ignore(['password_confirmation']);
 
 

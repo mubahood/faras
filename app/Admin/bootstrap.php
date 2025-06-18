@@ -50,5 +50,5 @@ $today = Carbon::now()->format('Y-m-d');
 $attendanceRecord = AttendanceRecord::whereDate('created_at', $today) 
     ->first();
 if (!$attendanceRecord) { 
-    Utils::generate_attendance_records();
 }
+Utils::generate_attendance_records();

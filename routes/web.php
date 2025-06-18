@@ -393,7 +393,18 @@ Route::get('do-import-attendance-records', function (Request $r) {
             $attendanceRecord->import_record_id = $ImportAttendanceRecord->id; // Link to the import record
 
             $check_in_time_date_and = Carbon::createFromFormat('Y-m-d H:i', $date_value . ' ' . $min_time);
-            $check_in_late_date_and_time = Carbon::createFromFormat('Y-m-d H:i:s', $date_value . ' ' . $config->late_time);
+
+            $late_time =  $config->late_time;
+
+            if ($attendanceRecord->user != null) {
+                if ($attendanceRecord->user->title != null) {
+                    if (strlen($attendanceRecord->user->title) > 5) {
+                        $late_time = $attendanceRecord->user->title; // Use user's title as late time if set
+                    }
+                }
+            }
+
+            $check_in_late_date_and_time = Carbon::createFromFormat('Y-m-d H:i:s', $date_value . ' ' . $late_time);
 
             $attendanceRecord->is_late = 'No'; // Mark as imported
             if ($check_in_time_date_and->greaterThan($check_in_late_date_and_time)) {

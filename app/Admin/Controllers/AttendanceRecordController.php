@@ -18,7 +18,8 @@ class AttendanceRecordController extends AdminController
     {
         $grid = new Grid(new AttendanceRecord());
 
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->orderBy('updated_at', 'desc');
+        $grid->column('id', __('Id'))->sortable()->sortable();
 
         $grid->filter(function ($filter) {
             $filter->equal('user_id', __('User'))->select(
@@ -45,7 +46,7 @@ class AttendanceRecordController extends AdminController
             ]);
         });
 
-        $grid->column('id', __('Id'))->sortable()->hide();
+
 
         $grid->column('user.name', __('Employee'))->sortable();
 
@@ -74,7 +75,7 @@ class AttendanceRecordController extends AdminController
                     return '--:--';
                 }
                 return $checkOutTime;
-            }); 
+            });
 
         $grid->column('hours', __('Hours'))
             ->display(fn($hours) => $hours ?: '0')
