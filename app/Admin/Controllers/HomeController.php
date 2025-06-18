@@ -23,7 +23,7 @@ class HomeController extends Controller
         $user = Admin::user();
         $config = SystemConfiguration::first(); // <-- GET SYSTEM CONFIG
         $companyName = $config->company_name ?? 'Your Company';
-        $TIME_NOW = Carbon::now()->format('H:i:s'); // <-- CURRENT TIME
+        $TIME_NOW = date('H:i:s'); // Get current time
 
         $content
             ->title('TIME: ' . $TIME_NOW)
